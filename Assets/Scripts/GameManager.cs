@@ -9,10 +9,15 @@ public class GameManager : MonoBehaviour
     public GameObject cosmonautPrefab;
     public LayerMask cosmonautLayer;
     public int count = 10;
-    GameObject[] cosmonauts;
+    Transform[] cosmonauts;
     [Header("UI")]
     public GameObject startUI;
     public GameObject winUI;
+    public GameObject selectionUI;
+    public GameObject watchUI;
+
+
+    public Selection selection;
 
     public bool isPlaying = false;
 
@@ -25,6 +30,13 @@ public class GameManager : MonoBehaviour
 
         winUI.SetActive(false);
         startUI.SetActive(true);
+
+
+        //UI Settings
+        startUI.SetActive(true);
+        winUI.SetActive(false);
+        selectionUI.SetActive(false);
+        watchUI.SetActive(false);
     }
 
     public void StartGame()
@@ -33,15 +45,43 @@ public class GameManager : MonoBehaviour
         SpawnCosmonauts();
         isPlaying = true;
         Time.timeScale = 1f;
+
+        Invoke("Selection", cosmonauts.Length * 2);
+
+
+        //UI Settings
+        startUI.SetActive(false);
+        winUI.SetActive(false);
+        selectionUI.SetActive(false);
+        watchUI.SetActive(true);
+    }
+    public void Selection()
+    {
+        if (!selection)
+            return;
+
+        selection.Setup(cosmonauts);
+
+
+        //UI Settings
+        startUI.SetActive(false);
+        winUI.SetActive(false);
+        selectionUI.SetActive(true);
+        watchUI.SetActive(false);
     }
     public void WinGame()
     {
         rounds++;
         for (int i = 0; i < cosmonauts.Length; i++)
         {
-            Destroy(cosmonauts[i]);
+            Destroy(cosmonauts[i].gameObject);
         }
+
+        //UI Settings
+        startUI.SetActive(false);
         winUI.SetActive(true);
+        selectionUI.SetActive(false);
+        watchUI.SetActive(false);
     }
 
     public void ResetLevel()
@@ -52,8 +92,9 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (!isPlaying)
+        if (!isPlaying || !selection.isSelection)
             return;
+
         if (Input.GetMouseButtonDown(0))
         {
             WinCheck(Input.mousePosition);
@@ -75,25 +116,29 @@ public class GameManager : MonoBehaviour
         RaycastHit2D hit =  Physics2D.Raycast(worldPosition, Vector2.down, 0.1f, cosmonautLayer);
         if (hit)
         {
-            bool isWin = hit.transform.GetComponent<WinCheck>().isWin;
+            bool isWin = hit.collider.transform.GetComponent<Kissable>().isKisser;
             if (isWin)
                 WinGame();
             else
                 print("WRONG");
+
+            print("CHEEECK");
 
         }
     }
 
     public void SpawnCosmonauts()
     {
-        count =(int) (rounds - 1 ) * 2 +1 ;
+        count =(int) (rounds) * 2;
 
         //count = rounds * 10;
 
-        cosmonauts = new GameObject[count];
+        cosmonauts = new Transform[count];
         for (int i = 0; i < count; i++)
         {
-            cosmonauts[i] = Instantiate(cosmonautPrefab);
+            cosmonauts[i] = Instantiate(cosmonautPrefab).transform;
+            if(i==0)
+                cosmonauts[i].GetComponent<Kissable>().isKisser = true;
         }
     }
 }

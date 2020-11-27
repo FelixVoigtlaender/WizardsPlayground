@@ -10,13 +10,25 @@ public class RandomMovementScript : MonoBehaviour
     [Header("Information")]
     public Vector2 size;
     public Vector2 velocity;
+    public Vector2 offset;
     public float rotationSpeed;
 
     private void Start()
     {
         velocity = new Vector2(Random.Range(-speedRange, speedRange), Random.Range(-speedRange, speedRange));
         rotationSpeed = Random.Range(-rotationSpeedRange, rotationSpeedRange);
+
+        Selection.OnSelection += OnSelection;
     }
+
+    public void OnSelection()
+    {
+        if (!this)
+            return;
+        this.enabled = false;
+        Selection.OnSelection -= OnSelection;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -24,6 +36,8 @@ public class RandomMovementScript : MonoBehaviour
         Vector2 position = transform.position;
         position += velocity * Time.deltaTime;
         transform.position = position;
+
+        position -= offset;
 
         // Bounce of walls
         if (position.x > size.x / 2)
@@ -56,6 +70,6 @@ public class RandomMovementScript : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(Vector2.zero, size);
+        Gizmos.DrawWireCube(offset, size);
     }
 }

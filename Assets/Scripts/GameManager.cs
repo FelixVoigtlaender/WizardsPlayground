@@ -46,7 +46,7 @@ public class GameManager : MonoBehaviour
         isPlaying = true;
         Time.timeScale = 1f;
 
-        Invoke("Selection", cosmonauts.Length * 2);
+        Invoke("Selection", cosmonauts.Length * 4);
 
 
         //UI Settings
@@ -133,12 +133,13 @@ public class GameManager : MonoBehaviour
 
         //count = rounds * 10;
 
+        // Generate Cosmonauts
         cosmonauts = new Transform[count];
         for (int i = 0; i < count; i++)
         {
             cosmonauts[i] = Instantiate(cosmonautPrefab).transform;
-            if(i==0)
-                cosmonauts[i].GetComponent<Kissable>().isKisser = true;
         }
+        // Make random cosmonaut kisser.
+        cosmonauts[Random.Range(0, cosmonauts.Length)].GetComponent<Kissable>().isKisser = true;
     }
 }
